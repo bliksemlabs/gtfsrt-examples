@@ -17,7 +17,14 @@ with open(sys.argv[1], "rb") as f:
 
     for feedentity in feedmessage.entity:
         if feedentity.HasField('is_deleted') and feedentity.is_deleted == True:
-            continue
+            # For incremental feeds we don't know where the deleted entity
+            # refers to, we must propagate it across all feeds.
+            e = trip_updates.entity.add()
+            e.CopyFrom(feedentity)
+            e = vehicles.entity.add()
+            e.CopyFrom(feedentity)
+            e = alerts.entity.add()
+            e.CopyFrom(feedentity)
 
         elif feedentity.HasField('trip_update'):
             e = trip_updates.entity.add()
